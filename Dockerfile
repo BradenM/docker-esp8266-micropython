@@ -47,7 +47,9 @@ RUN apt-get update \
     && chown -R micropython:micropython ../esp-open-sdk ../micropython
 
 # Copy Modules to freeze
-COPY modules/*.py /micropython/ports/esp8266/modules/
+COPY modules/.gitkeep modules/*.py /micropython/ports/esp8266/modules/
+# Workaround to allow empty modules directory
+RUN rm /micropython/ports/esp8266/modules/.gitkeep
 
 USER micropython
 
