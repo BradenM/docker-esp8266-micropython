@@ -1,6 +1,5 @@
 #!/bin/bash
 
-VENDOR_DIR="./vendor"
 SERIAL_PORT=${SERIAL_PORT:-"/dev/ttyUSB0"}
 BIN_FILENAME=${BIN_FILENAME:-"firmware-combined.bin"}
 
