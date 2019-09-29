@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VENDOR_DIR="./vendor"
-SERIAL_PORT=${SERIAL_PORT:-"/dev/tty.SLAB_USBtoUART"}
+SERIAL_PORT=${SERIAL_PORT:-"/dev/ttyUSB0"}
 BIN_FILENAME=${BIN_FILENAME:-"firmware-combined.bin"}
 
 
@@ -32,7 +32,7 @@ connect() {
 
 copy_firmware() {
   echo "Copying firmware to current directory: $(pwd)/${BIN_FILENAME}"
-  docker cp micropython:/micropython/esp8266/build/${BIN_FILENAME} .
+  docker cp micropython:/micropython/ports/esp8266/build/${BIN_FILENAME} .
 }
 
 erase_flash() {
@@ -42,7 +42,7 @@ erase_flash() {
 
 inside_flash() {
   echo "Writing flash from within container:"
-  docker run --rm -it --device "$SERIAL_PORT" --user root --workdir /micropython/esp8266 micropython make PORT="$SERIAL_PORT" deploy
+  docker run --rm -it --device "$SERIAL_PORT" --user root --workdir /micropython/ports/esp8266 micropython make PORT="$SERIAL_PORT" deploy
 }
 
 write_flash() {

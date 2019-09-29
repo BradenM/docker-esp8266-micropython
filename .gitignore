@@ -1,2 +1,2 @@
 vendor/*
-firmware-combined.bin
+*.bin

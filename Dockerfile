@@ -1,6 +1,10 @@
-#### enqack/esp8266-micropython
 FROM phusion/baseimage:0.9.19
-ARG VERSION=master
+
+LABEL maintainer="bradenmars@bradenmars.me"
+LABEL description="MicroPython ESP8266 Build Dockerfile"
+
+ARG REPO=https://github.com/micropython/micropython.git
+ARG BRANCH=master
 
 RUN apt-get update \
     && apt-get install -y \
@@ -38,9 +42,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --no-create-home micropython \
     && git clone --recursive https://github.com/pfalcon/esp-open-sdk.git \
-    && git clone https://github.com/micropython/micropython.git \
-    && cd micropython && git checkout $VERSION && git submodule update --init \
+    && git clone $REPO micropython \
+    && cd micropython && git checkout $BRANCH && git submodule update --init \
     && chown -R micropython:micropython ../esp-open-sdk ../micropython
+
+# Copy Modules to freeze
+COPY modules/*.py /micropython/ports/esp8266/modules/
 
 USER micropython
 
@@ -50,8 +57,7 @@ ENV PATH=/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 
 USER root
 
-RUN cd /micropython/ports/unix && make axtls && make
-
+# Add Entrypoint
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh \
     && /docker-entrypoint.sh build
