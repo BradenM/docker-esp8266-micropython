@@ -3,8 +3,13 @@ FROM phusion/baseimage:0.9.19
 LABEL maintainer="bradenmars@bradenmars.me"
 LABEL description="MicroPython ESP8266 Build Dockerfile"
 
-ARG REPO=https://github.com/micropython/micropython.git
-ARG BRANCH=master
+ARG REPO
+ARG BRANCH
+ARG PORT_PATH
+
+ENV REPO ${REPO:-https://github.com/micropython/micropython.git}
+ENV BRANCH ${BRANCH:-master}
+ENV PORT_PATH ${PORT_PATH:-ports/esp8266}
 
 RUN apt-get update \
     && apt-get install -y \
@@ -47,7 +52,7 @@ RUN apt-get update \
     && chown -R micropython:micropython ../esp-open-sdk ../micropython
 
 # Copy Modules to freeze
-COPY modules/.gitkeep modules/*.py /micropython/ports/esp8266/modules/
+COPY esp8266/modules/.gitkeep esp8266/modules/*.py /micropython/ports/esp8266/modules/
 # Workaround to allow empty modules directory
 RUN rm /micropython/ports/esp8266/modules/.gitkeep
 
@@ -59,11 +64,15 @@ ENV PATH=/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 
 USER root
 
-# Add Entrypoint
-ADD docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh \
-    && /docker-entrypoint.sh build
+# Build mpy-cross
+RUN cd /micropython && make -C mpy-cross V=1
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# Build ESP8266
+RUN cd /micropython/${PORT_PATH} && make V=1
 
-CMD ["build"]
+# Setup Entrypoint
+# Must copy entrypoint or build from parent dir with -f option
+# See BradenM/micropy-build on GitHub
+COPY ./docker-entrypoint.py /docker-entrypoint.py
+
+ENTRYPOINT ["/usr/bin/python3", "/docker-entrypoint.py"]
