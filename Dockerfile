@@ -2,6 +2,7 @@ FROM phusion/baseimage:0.9.19
 
 LABEL maintainer="bradenmars@bradenmars.me"
 LABEL description="MicroPython ESP8266 Build Dockerfile"
+LABEL org.opencontainers.image.source https://github.com/bradenm/micropy-build
 
 ARG REPO
 ARG BRANCH
